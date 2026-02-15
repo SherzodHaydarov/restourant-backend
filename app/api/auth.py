@@ -160,3 +160,7 @@ async def get_current_user_info(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get user info",
         )
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("app.api.auth:router", host="127.0.0.1", port=8000)

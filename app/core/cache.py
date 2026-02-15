@@ -88,3 +88,16 @@ async def clear_pattern(pattern: str) -> int:
     except Exception as e:
         logger.error(f"Cache pattern delete error: {e}")
         return 0
+
+if __name__ == "__main__":
+    import asyncio
+
+    async def main():
+        await init_redis()
+        await set_cache("test_key", {"foo": "bar"}, expire=60)
+        value = await get_cache("test_key")
+        print(f"Cached value: {value}")
+        await delete_cache("test_key")
+        await close_redis()
+
+    asyncio.run(main())

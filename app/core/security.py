@@ -104,3 +104,18 @@ def require_role(*allowed_roles: str):
             )
         return current_user
     return role_checker
+
+if __name__ == "__main__":
+    # Example usage
+    security_service = SecurityService()
+    password = "mysecretpassword"
+    hashed = security_service.hash_password(password)
+    print(f"Hashed password: {hashed}")
+    assert security_service.verify_password(password, hashed)
+    user_data = {"sub": 1, "role": "admin"}
+    access_token = security_service.create_access_token(user_data)
+    print(f"Access token: {access_token}")
+    decoded = security_service.verify_token(access_token)
+    print(f"Decoded token: {decoded}")
+    refresh_token = security_service.create_refresh_token(user_data)
+    print(f"Refresh token: {refresh_token}")

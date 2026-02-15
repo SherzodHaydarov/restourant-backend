@@ -58,3 +58,7 @@ async def close_db():
     """Close database connections"""
     await engine.dispose()
     logger.info("Database connections closed")
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(init_db())

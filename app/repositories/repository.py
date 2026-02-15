@@ -82,7 +82,7 @@ class UserRepository(BaseRepository):
 
         total = await self.session.scalar(count_stmt)
         result = await self.session.execute(stmt.offset(skip).limit(limit))
-        return result.scalars().all(), total
+        return result.scalars().all(), total # pyright: ignore[reportReturnType]
 
     async def update_user(self, user_id: int, **kwargs) -> Optional[User]:
         """Update user"""

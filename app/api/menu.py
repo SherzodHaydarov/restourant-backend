@@ -132,6 +132,9 @@ async def create_product(
 
         # Calculate discount price if discount percent is provided
         discount_price = None
+        raise
+    except Exception as e:
+        logger.error(f"Get product details error: {e}")
         if product_data.discount_percent:
             discount_price = product_data.price * (
                 1 - product_data.discount_percent / 100
@@ -233,3 +236,8 @@ async def update_product(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update product",
         )
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("app.api.menu:router", host="127.0.0.1", port=8000)

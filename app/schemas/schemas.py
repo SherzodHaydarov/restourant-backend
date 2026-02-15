@@ -4,9 +4,6 @@ from decimal import Decimal
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
-# ==================== ENUM SCHEMAS ====================
-
-
 class RoleSchema(BaseModel):
     id: int
     name: str

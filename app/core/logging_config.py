@@ -56,3 +56,8 @@ def setup_logging():
 # Audit logger
 def get_audit_logger():
     return logging.getLogger("audit")
+
+if __name__ == "__main__":
+    setup_logging()
+    logger = logging.getLogger("app")
+    logger.info("Logging configuration initialized successfully")

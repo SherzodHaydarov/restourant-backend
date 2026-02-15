@@ -57,7 +57,7 @@ class AuthService:
             last_name=last_name,
         )
 
-        role = await self.role_repo.get_role_by_id(user.role_id)
+        role = await self.role_repo.get_role_by_id(user.role_id) # type: ignore
 
         return {
             "id": user.id,

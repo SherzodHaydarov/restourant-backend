@@ -321,3 +321,8 @@ async def create_dine_in_order(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create order",
         )
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("app.api.orders:router", host="127.0.0.1", port=8000)

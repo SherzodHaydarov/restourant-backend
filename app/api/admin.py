@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, __main__, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -197,3 +197,7 @@ async def update_order_status(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update order status",
         )
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("app.api.admin:router", host="127.0.0.1", port=8000)
