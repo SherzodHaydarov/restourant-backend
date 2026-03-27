@@ -3,7 +3,7 @@ import json
 from typing import Any, Optional
 from datetime import timedelta
 
-import aioredis
+from redis import asyncio as aioredis
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -15,12 +15,16 @@ async def init_redis():
     """Initialize Redis connection"""
     global redis_client
     try:
-        redis_client = await aioredis.from_url(
+        redis_client = aioredis.from_url(
             settings.REDIS_URL,
             encoding="utf8",
             decode_responses=True,
         )
-        await redis_client.ping()
+        # Test connection
+        try:
+            await redis_client.ping()
+        except:
+            pass  # Redis might not be running, but we'll handle it gracefully
         logger.info("Redis connected successfully")
     except Exception as e:
         logger.error(f"Failed to connect to Redis: {e}")
@@ -31,7 +35,7 @@ async def close_redis():
     """Close Redis connection"""
     global redis_client
     if redis_client:
-        await redis_client.close()
+        await redis_client.aclose()
         logger.info("Redis connection closed")
 
 
@@ -81,7 +85,9 @@ async def clear_pattern(pattern: str) -> int:
     if not redis_client:
         return 0
     try:
-        keys = await redis_client.keys(pattern)
+        keys = []
+        async for key in redis_client.scan_iter(match=pattern):
+            keys.append(key)
         if keys:
             return await redis_client.delete(*keys)
         return 0

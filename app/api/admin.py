@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, __main__, status, Query
+from typing import Dict, Any
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -14,12 +15,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
 
-@router.get("/dashboard", response_model=dict)
+@router.get("/dashboard", response_model=Dict[str, Any])
 async def get_dashboard(
-    restaurant_id: int = Query(...),
-    current_user: dict = Depends(require_role("admin", "manager")),
+    restaurant_id: int = Query(..., description="Restaurant ID"),
+    current_user: Dict[str, Any] = Depends(require_role("admin", "manager")),
     db: AsyncSession = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """Get admin dashboard stats"""
     try:
         order_repo = OrderRepository(db)
@@ -36,7 +37,7 @@ async def get_dashboard(
             restaurant_id
         )
 
-        # Get total customers (placeholder)
+        # Get total customers
         user_repo = UserRepository(db)
         active_users, total_customers = await user_repo.get_active_users(limit=1000000)
 
@@ -59,13 +60,13 @@ async def get_dashboard(
         )
 
 
-@router.get("/sales/daily", response_model=dict)
+@router.get("/sales/daily", response_model=Dict[str, Any])
 async def get_daily_sales(
-    restaurant_id: int = Query(...),
-    date: str = Query(...),
-    current_user: dict = Depends(require_role("admin", "manager")),
+    restaurant_id: int = Query(..., description="Restaurant ID"),
+    date: str = Query(..., description="Date in YYYY-MM-DD format"),
+    current_user: Dict[str, Any] = Depends(require_role("admin", "manager")),
     db: AsyncSession = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """Get daily sales report"""
     try:
         order_repo = OrderRepository(db)
@@ -85,20 +86,19 @@ async def get_daily_sales(
         )
 
 
-@router.get("/sales/monthly", response_model=dict)
+@router.get("/sales/monthly", response_model=Dict[str, Any])
 async def get_monthly_sales(
-    restaurant_id: int = Query(...),
-    year: int = Query(...),
-    month: int = Query(...),
-    current_user: dict = Depends(require_role("admin", "manager")),
+    restaurant_id: int = Query(..., description="Restaurant ID"),
+    year: int = Query(..., description="Year"),
+    month: int = Query(..., ge=1, le=12, description="Month (1-12)"),
+    current_user: Dict[str, Any] = Depends(require_role("admin", "manager")),
     db: AsyncSession = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """Get monthly sales report"""
     try:
         order_repo = OrderRepository(db)
 
         # Generate date range for the month
-        from datetime import datetime
         start_date = datetime(year, month, 1)
         if month == 12:
             end_date = datetime(year + 1, 1, 1)
@@ -125,12 +125,12 @@ async def get_monthly_sales(
         )
 
 
-@router.get("/orders/active", response_model=dict)
+@router.get("/orders/active", response_model=Dict[str, Any])
 async def get_active_orders(
-    restaurant_id: int = Query(...),
-    current_user: dict = Depends(require_role("admin", "manager")),
+    restaurant_id: int = Query(..., description="Restaurant ID"),
+    current_user: Dict[str, Any] = Depends(require_role("admin", "manager")),
     db: AsyncSession = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """Get all active orders"""
     try:
         order_repo = OrderRepository(db)
@@ -160,23 +160,23 @@ async def get_active_orders(
         )
 
 
-@router.post("/orders/{order_id}/status", response_model=dict)
+@router.post("/orders/{order_id}/status", response_model=Dict[str, Any])
 async def update_order_status(
     order_id: int,
-    status: str = Query(...),
-    current_user: dict = Depends(require_role("admin", "manager")),
+    new_status: str = Query(..., description="New order status", alias="status"),
+    current_user: Dict[str, Any] = Depends(require_role("admin", "manager")),
     db: AsyncSession = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """Update order status"""
     try:
-        from app.services.service import OrderService, PaymentService
+        from app.services.service import OrderService
         from app.repositories.repository import PaymentRepository
 
         order_repo = OrderRepository(db)
         payment_repo = PaymentRepository(db)
 
         order_service = OrderService(order_repo, payment_repo)
-        result = await order_service.update_order_status(order_id, status)
+        result = await order_service.update_order_status(order_id, new_status)
 
         if not result:
             raise HTTPException(
@@ -186,7 +186,7 @@ async def update_order_status(
 
         return {
             "status": "success",
-            "message": f"Order status updated to {status}",
+            "message": f"Order status updated to {new_status}",
             "data": result,
         }
     except HTTPException:
@@ -197,7 +197,3 @@ async def update_order_status(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update order status",
         )
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("app.api.admin:router", host="127.0.0.1", port=8000)
