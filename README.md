@@ -133,6 +133,7 @@ This starts:
 - `POST /api/orders/table/{table_id}/order` - Create order from table QR
 
 ### Admin
+- `GET /admin` - Lightweight admin panel page with endpoint shortcuts
 - `GET /api/admin/dashboard` - Dashboard analytics
 - `GET /api/admin/sales/daily` - Daily sales report
 - `GET /api/admin/sales/monthly` - Monthly sales report

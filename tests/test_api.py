@@ -23,6 +23,13 @@ def test_root_endpoint(client):
     assert "version" in response.json()
 
 
+def test_admin_panel_page(client):
+    """Test admin panel page"""
+    response = client.get("/admin")
+    assert response.status_code == 200
+    assert "Admin Panel" in response.text
+
+
 def test_register_user(client):
     """Test user registration"""
     user_data = {
