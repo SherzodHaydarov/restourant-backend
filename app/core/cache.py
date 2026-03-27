@@ -35,7 +35,7 @@ async def close_redis():
     """Close Redis connection"""
     global redis_client
     if redis_client:
-        await redis_client.aclose()
+        await redis_client.close()
         logger.info("Redis connection closed")
 
 
